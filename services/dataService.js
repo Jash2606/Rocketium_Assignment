@@ -1,20 +1,18 @@
+const fs = require('fs').promises; 
 const axios = require('axios');
-const express = require('express');
 require('dotenv').config();
 
-const dataUrl = process.env.DATA_URL;
+const url = process.env.DATA_URL;
 
-const fetchData = async () => {
-    try {
-        const response = await axios.get(dataUrl);
-        console.log('Data fetched successfully');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        throw new Error('Failed to fetch data');
-    }
+const fetchDataAndStore = async () => {
+  try {
+    const response = await axios.get(url);
+    const dataJson = JSON.stringify(response.data, null, 2);
+    await fs.writeFile('./data/dummyData.json', dataJson);
+    console.log('Data fetched and stored successfully.');
+  } catch (error) {
+    console.error('Error fetching or storing data:', error);
+  }
 };
 
-
-
-module.exports = { fetchData };
+module.exports = { fetchDataAndStore };

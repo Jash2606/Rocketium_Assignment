@@ -1,16 +1,12 @@
-const dataService = require('../services/dataService.js');
+const dataService = require('../services/dataService');
 
+const initializeData = async (req, res) => {
+  try {
+    await dataService.fetchDataAndStore();
+    res.status(200).json({ message: 'Data initialized successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to initialize data' });
+  }
+};
 
-const getData = (req, res) => {
-    try{
-        dataService.fetchData().then((data) => {
-            res.status(200).send(data);
-        }).catch((error) => {
-            res.status(500).send(error.message);
-        });
-    }catch(error){
-        res.status(500).send(error.message);
-    }
-}
-
-module.exports = { getData };
+module.exports = { initializeData };
