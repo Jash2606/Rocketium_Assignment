@@ -94,6 +94,8 @@ You can import the Postman collection to test the API endpoints. Download the co
 
 [Download Postman Collection](./postman_collection.json)
 
+Here is my Postman Collection Link : https://documenter.getpostman.com/view/33555544/2sA3kdBHwD 
+
 ### How to Import the Collection
 
 1. Open Postman.
