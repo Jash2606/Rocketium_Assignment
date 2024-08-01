@@ -43,22 +43,16 @@ This project demonstrates fundamental skills in Node.js and working with APIs. T
 
 6. Access the API at:
    ```
-   http://localhost:3050
+   http://localhost:3000
    ```
 
 ## API Endpoints
 
 ### Endpoints
 
-#### Initialize Data
-
-- **URL:** `/api/initialize-data`
-- **Method:** `GET`
-- **Description:** Fetches the dummy JSON data from the URL specified in the `.env` file and stores it on the server.
-
 #### Get All Data
 
-- **URL:** `/api/all-data`
+- **URL:** `/api/data`
 - **Method:** `GET`
 - **Description:** Returns all stored data.
 
@@ -81,12 +75,10 @@ This project demonstrates fundamental skills in Node.js and working with APIs. T
 ## API Documentation
 
 ### Testing Links
-- **Initialize Data:** [http://localhost:3050/api/initialize-data](http://localhost:3050/api/initialize-data)
-- **Get All Data:** [http://localhost:3050/api/all-data](http://localhost:3050/api/data/all-data)
-- **Sort by Version:** [http://localhost:3050/api/data/filter?sortBy=version](http://localhost:3050/api/data/filter?sortBy=version)
-- **Filter by Language:** [http://localhost:3050/api/data/filter?language=hindi](http://localhost:3050/api/data/filter?language=hindi)
-- **Filter by Name:** [http://localhost:3050/api/data/filter?name=john](http://localhost:3050/api/data/filter?name=john)
-
+- **Get All Data:** [https://rocketium-assignment-wnbk.onrender.com/api/data](https://rocketium-assignment-wnbk.onrender.com/api/data)
+- **Sort in desc by Version:** [https://rocketium-assignment-wnbk.onrender.com/api/data/filter?sortBy=version&order=desc](https://rocketium-assignment-wnbk.onrender.com/api/data/filter?sortBy=version&order=desc)
+- **Filter by Language:** [https://rocketium-assignment-wnbk.onrender.com/api/data/filter?language=hindi](https://rocketium-assignment-wnbk.onrender.com/api/data/filter?language=hindi)
+- **Filter by Name:** [https://rocketium-assignment-wnbk.onrender.com/api/data/filter?search=eli](https://rocketium-assignment-wnbk.onrender.com/api/data/filter?search=eli)
 
 ## Postman Collection
 
