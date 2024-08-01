@@ -34,8 +34,6 @@ const readData = async () => {
         throw new Error('Failed to read data');
         }
     }
-    // console.log('Data read successfully.');
-    // console.log(cachedData);
     return cachedData;
 };
 
