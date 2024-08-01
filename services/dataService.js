@@ -3,56 +3,86 @@ const axios = require('axios');
 require('dotenv').config();
 const path = require('path');
 const dataFilePath = path.join(__dirname, '../data/dummyData.json');
-
 const url = process.env.DATA_URL;
+
+let cachedData = null;
+let lastCacheTime = 0;
+const cacheDuration = 1000 * 60 * 60; // 1 hour
 
 const fetchDataAndStore = async () => {
   try {
     const response = await axios.get(url);
     const dataJson = JSON.stringify(response.data, null, 2);
-    await fs.writeFile('./data/dummyData.json', dataJson);
+    await fs.writeFile(dataFilePath, dataJson);
     console.log('Data fetched and stored successfully.');
+    cachedData = null;
+    lastCacheTime = 0;
   } catch (error) {
     console.error('Error fetching or storing data:', error);
   }
 };
 
 const readData = async () => {
-  try {
-    const data = await fs.readFile(dataFilePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading data:', error);
-    throw new Error('Failed to read data');
+  const now = Date.now();
+  if (!cachedData || now - lastCacheTime > cacheDuration) {
+    try {
+      const data = await fs.readFile(dataFilePath, 'utf-8');
+      cachedData = JSON.parse(data);
+      lastCacheTime = now;
+    } catch (error) {
+      console.error('Error reading data:', error);
+      throw new Error('Failed to read data');
+    }
   }
+  return cachedData;
 };
 
 const removeDuplicates = (data) => {
-    const seen = new Set();
-    return data.filter(item => {
-      const duplicate = seen.has(item.id);
-      seen.add(item.id);
-      return !duplicate;
-    });
+  const seen = new Set();
+  return data.filter(item => {
+    const duplicate = seen.has(item.id);
+    seen.add(item.id);
+    return !duplicate;
+  });
+};
+
+const sortData = (data, sortBy) => {
+    if (typeof data[0][sortBy] === 'string') {
+      return data.sort((a, b) => a[sortBy].localeCompare(b[sortBy], undefined, { sensitivity: 'base' }));
+    } else if (typeof data[0][sortBy] === 'number') {
+      return data.sort((a, b) => a[sortBy] - b[sortBy]);
+    }
+    return data;
   };
 
 const filterAndSortData = async (query) => {
   try {
-    let data = await readData();
+    let data = await readData(); 
     data = removeDuplicates(data);
+
+    if (query.search) {
+        data = data.filter(item => item.name.toLowerCase().includes(query.search.toLowerCase()));
+    }
+    
     if (query.language) {
       data = data.filter(item => item.language.toLowerCase() === query.language.toLowerCase());
     }
 
+    if(query.bio){
+        data = data.filter(item => item.bio.toLowerCase().includes(query.bio.toLowerCase()));
+    }
+
+    if(query.version){
+        data = data.filter(item => item.version === query.version);
+    }
+
     if (query.sortBy) {
-      data.sort((a, b) => {
-        if (a[query.sortBy] > b[query.sortBy]) {
-          return 1;
-        } else if (a[query.sortBy] < b[query.sortBy]) {
-          return -1;
-        }
-        return 0;
-      });
+        const validSortFields = ['name', 'language', 'bio', 'version'];
+        if (validSortFields.includes(query.sortBy)) {
+            data = sortData(data, query.sortBy);
+          } else {
+            throw new Error(`Invalid sort field: ${query.sortBy}`);
+          }
     }
 
     return data;
@@ -62,4 +92,4 @@ const filterAndSortData = async (query) => {
   }
 };
 
-module.exports = { fetchDataAndStore , filterAndSortData };
+module.exports = { fetchDataAndStore, filterAndSortData };
