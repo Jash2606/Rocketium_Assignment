@@ -1,12 +1,10 @@
 const dataService = require('../services/dataService');
 
-const initializeData = async (req, res) => {
+const initializeData =async () => {
     try {
         const data = await dataService.fetchDataAndStore();
-        res.status(200).json({ message: 'Data initialized successfully' });
     } catch (error) {
         console.error('Error initializing data:', error);
-        res.status(500).json({ error: 'Failed to initialize data' });
     }
 };
 
