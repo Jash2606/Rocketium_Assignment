@@ -69,30 +69,30 @@ const filterAndSortData = async (query) => {
         data = removeDuplicates(data);
 
         if (query.search) {
-        data = data.filter(item => item.name.toLowerCase().includes(query.search.toLowerCase()));
+            data = data.filter(item => item.name.toLowerCase().includes(query.search.toLowerCase()));
         }
 
         if (query.language) {
-        data = data.filter(item => item.language.toLowerCase() === query.language.toLowerCase());
+            data = data.filter(item => item.language.toLowerCase() === query.language.toLowerCase());
         }
 
         if (query.bio) {
-        data = data.filter(item => item.bio.toLowerCase().includes(query.bio.toLowerCase()));
+            data = data.filter(item => item.bio.toLowerCase().includes(query.bio.toLowerCase()));
         }
 
         if (query.version) {
             const versionNumber = parseFloat(query.version);
-          data = data.filter((item) => item.version >= versionNumber);
+            data = data.filter((item) => item.version >= versionNumber);
         }
 
         if (query.sortBy) {
-        const validSortFields = ['name', 'language', 'bio', 'version'];
-        if (validSortFields.includes(query.sortBy)) {
-            const order = query.order && ['asc', 'desc'].includes(query.order) ? query.order : 'asc';
-            data = sortData(data, query.sortBy, order);
-        } else {
-            throw new Error(`Invalid sort field: ${query.sortBy}`);
-        }
+            const validSortFields = ['name', 'language', 'bio', 'version'];
+            if (validSortFields.includes(query.sortBy)) {
+                const order = query.order && ['asc', 'desc'].includes(query.order) ? query.order : 'asc';
+                data = sortData(data, query.sortBy, order);
+            } else {
+                throw new Error(`Invalid sort field: ${query.sortBy}`);
+            }
         }
 
         return data;
