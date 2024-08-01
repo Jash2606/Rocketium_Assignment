@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const dataRoutes = require('./route/dataRoute.js');
 require('dotenv').config();
 
