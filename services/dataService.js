@@ -7,7 +7,7 @@ const url = process.env.DATA_URL;
 
 let cachedData = null;
 let lastCacheTime = 0;
-const cacheDuration = 1000 * 60 * 15; // 15 minutes
+const cacheDuration = 1000 * 60 * 60; // 1 hour
 
 const fetchDataAndStore = async () => {
     try {
@@ -18,7 +18,7 @@ const fetchDataAndStore = async () => {
         cachedData = null;
         lastCacheTime = 0;
     } catch (error) {
-        console.error('Error fetching or storing data:', error);
+        console.error('Error fetching or storing data:', error.message);
     }
 };
 
@@ -30,10 +30,12 @@ const readData = async () => {
         cachedData = JSON.parse(data);
         lastCacheTime = now;
         } catch (error) {
-        console.error('Error reading data:', error);
+        console.error('Error reading data:', error.message);
         throw new Error('Failed to read data');
         }
     }
+    // console.log('Data read successfully.');
+    // console.log(cachedData);
     return cachedData;
 };
 
@@ -46,59 +48,60 @@ const removeDuplicates = (data) => {
     });
 };
 
-const sortData = (data, sortBy) => {
+const sortData = (data, sortBy, order = 'asc') => {
     return data.sort((a, b) => {
         const valueA = a[sortBy];
         const valueB = b[sortBy];
 
+        let comparison = 0;
+
         if (typeof valueA === 'string' && typeof valueB === 'string') {
-            if (valueA.toLowerCase() < valueB.toLowerCase()) return -1;
-            if (valueA.toLowerCase() > valueB.toLowerCase()) return 1;
-            return 0;
+        comparison = valueA.toLowerCase().localeCompare(valueB.toLowerCase());
         } else if (typeof valueA === 'number' && typeof valueB === 'number') {
-            return valueA - valueB;
+        comparison = valueA - valueB;
         }
 
-        return 0; 
+        return order === 'desc' ? -comparison : comparison;
     });
-}
-;
-
-const filterAndSortData = async (query) => {
-  try {
-    let data = await readData(); 
-    data = removeDuplicates(data);
-
-    if (query.search) {
-        data = data.filter(item => item.name.toLowerCase().includes(query.search.toLowerCase()));
-    }
-    
-    if (query.language) {
-      data = data.filter(item => item.language.toLowerCase() === query.language.toLowerCase());
-    }
-
-    if(query.bio){
-        data = data.filter(item => item.bio.toLowerCase().includes(query.bio.toLowerCase()));
-    }
-
-    if(query.version){
-        data = data.filter(item => item.version === query.version);
-    }
-
-    if (query.sortBy) {
-        const validSortFields = ['name', 'language', 'bio', 'version'];
-        if (validSortFields.includes(query.sortBy)) {
-            data = sortData(data, query.sortBy);
-          } else {
-            throw new Error(`Invalid sort field: ${query.sortBy}`);
-          }
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error filtering and sorting data:', error);
-    throw new Error('Failed to filter and sort data');
-  }
 };
 
-module.exports = { fetchDataAndStore, filterAndSortData , readData};
+const filterAndSortData = async (query) => {
+    try {
+        let data = await readData();
+        data = removeDuplicates(data);
+
+        if (query.search) {
+        data = data.filter(item => item.name.toLowerCase().includes(query.search.toLowerCase()));
+        }
+
+        if (query.language) {
+        data = data.filter(item => item.language.toLowerCase() === query.language.toLowerCase());
+        }
+
+        if (query.bio) {
+        data = data.filter(item => item.bio.toLowerCase().includes(query.bio.toLowerCase()));
+        }
+
+        if (query.version) {
+            const versionNumber = parseFloat(query.version);
+          data = data.filter((item) => item.version >= versionNumber);
+        }
+
+        if (query.sortBy) {
+        const validSortFields = ['name', 'language', 'bio', 'version'];
+        if (validSortFields.includes(query.sortBy)) {
+            const order = query.order && ['asc', 'desc'].includes(query.order) ? query.order : 'asc';
+            data = sortData(data, query.sortBy, order);
+        } else {
+            throw new Error(`Invalid sort field: ${query.sortBy}`);
+        }
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error filtering and sorting data:', error.message);
+        throw new Error('Failed to filter and sort data');
+    }
+};
+
+module.exports = { fetchDataAndStore, filterAndSortData, readData };

@@ -14,7 +14,7 @@ const getAllData = async (req, res) => {
     try {
         const data = await dataService.readData(); 
         if (data && data.length > 0) {
-          res.status(200).json(data);
+            res.status(200).json(data);
         } else {
           res.status(404).json({ message: 'No data found' });
         }
