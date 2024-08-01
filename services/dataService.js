@@ -7,53 +7,62 @@ const url = process.env.DATA_URL;
 
 let cachedData = null;
 let lastCacheTime = 0;
-const cacheDuration = 1000 * 60 * 60; // 1 hour
+const cacheDuration = 1000 * 60 * 15; // 15 minutes
 
 const fetchDataAndStore = async () => {
-  try {
-    const response = await axios.get(url);
-    const dataJson = JSON.stringify(response.data, null, 2);
-    await fs.writeFile(dataFilePath, dataJson);
-    console.log('Data fetched and stored successfully.');
-    cachedData = null;
-    lastCacheTime = 0;
-  } catch (error) {
-    console.error('Error fetching or storing data:', error);
-  }
+    try {
+        const response = await axios.get(url);
+        const dataJson = JSON.stringify(response.data, null, 2);
+        await fs.writeFile(dataFilePath, dataJson);
+        console.log('Data fetched and stored successfully.');
+        cachedData = null;
+        lastCacheTime = 0;
+    } catch (error) {
+        console.error('Error fetching or storing data:', error);
+    }
 };
 
 const readData = async () => {
-  const now = Date.now();
-  if (!cachedData || now - lastCacheTime > cacheDuration) {
-    try {
-      const data = await fs.readFile(dataFilePath, 'utf-8');
-      cachedData = JSON.parse(data);
-      lastCacheTime = now;
-    } catch (error) {
-      console.error('Error reading data:', error);
-      throw new Error('Failed to read data');
+    const now = Date.now();
+    if (!cachedData || now - lastCacheTime > cacheDuration) {
+        try {
+        const data = await fs.readFile(dataFilePath, 'utf-8');
+        cachedData = JSON.parse(data);
+        lastCacheTime = now;
+        } catch (error) {
+        console.error('Error reading data:', error);
+        throw new Error('Failed to read data');
+        }
     }
-  }
-  return cachedData;
+    return cachedData;
 };
 
 const removeDuplicates = (data) => {
-  const seen = new Set();
-  return data.filter(item => {
-    const duplicate = seen.has(item.id);
-    seen.add(item.id);
-    return !duplicate;
-  });
+    const seen = new Set();
+    return data.filter(item => {
+        const duplicate = seen.has(item.id);
+        seen.add(item.id);
+        return !duplicate;
+    });
 };
 
 const sortData = (data, sortBy) => {
-    if (typeof data[0][sortBy] === 'string') {
-      return data.sort((a, b) => a[sortBy].localeCompare(b[sortBy], undefined, { sensitivity: 'base' }));
-    } else if (typeof data[0][sortBy] === 'number') {
-      return data.sort((a, b) => a[sortBy] - b[sortBy]);
-    }
-    return data;
-  };
+    return data.sort((a, b) => {
+        const valueA = a[sortBy];
+        const valueB = b[sortBy];
+
+        if (typeof valueA === 'string' && typeof valueB === 'string') {
+            if (valueA.toLowerCase() < valueB.toLowerCase()) return -1;
+            if (valueA.toLowerCase() > valueB.toLowerCase()) return 1;
+            return 0;
+        } else if (typeof valueA === 'number' && typeof valueB === 'number') {
+            return valueA - valueB;
+        }
+
+        return 0; 
+    });
+}
+;
 
 const filterAndSortData = async (query) => {
   try {
@@ -92,4 +101,4 @@ const filterAndSortData = async (query) => {
   }
 };
 
-module.exports = { fetchDataAndStore, filterAndSortData };
+module.exports = { fetchDataAndStore, filterAndSortData , readData};
